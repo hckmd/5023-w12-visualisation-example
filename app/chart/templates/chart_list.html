@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Available Charts</h3>
+<ul>
+    <li>
+        <a href="{{ url_for('chart.book_ratings_chart') }}">Book ratings</a>
+    </li>
+    <li>
+        <a href="{{ url_for('chart.user_books_chart') }}">Number of Books Owned by Users</a>
+    </li>
+    <li>Books Read per Year by Users</li>
+    <li>Books per Genre</li>
+</ul>
+{% endblock %}
