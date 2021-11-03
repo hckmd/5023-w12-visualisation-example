@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly
 
+from app import db
 from app.chart import bp
 from app.models import Book
 
@@ -21,9 +22,9 @@ def book_ratings_chart():
     book_query = Book.query
     df = pd.read_sql(book_query.statement, book_query.session.bind)
 
-    # Draw the chart and dump it in JSON format
+    # Draw the chart and dump it into JSON format
     chart = px.bar(df, x='title', y='critics_rating')
-    chart_JSON = json.dumps(chart, cls= plotly.utils.PlotlyJSONEncoder, indent=4)
+    chart_JSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder, indent=4)
 
     # Returns the template, including the JSON data for the chart
     return render_template('chart_page.html', title = 'Critic ratings for books', chart_JSON = chart_JSON)
@@ -31,5 +32,18 @@ def book_ratings_chart():
 @bp.route('/user_books')
 @login_required
 def user_books_chart():
-    # Route is empty for now, need to add code to create and return plot comparing book ratings
-    return ''
+    # Run query to get count of books owned per user and load into DataFrame
+    query = (
+        "SELECT username, count(*) as books_owned "
+        "FROM user_book ub "
+        "JOIN user u on ub.user_id = u.id "
+        "GROUP BY username"
+    )
+    df = pd.read_sql(query, db.session.bind)
+
+    # Draw the chart and dump it into JSON format
+    chart = px.bar(df, x ='username', y='books_owned')
+    chart_JSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder, indent=4)
+
+    # Returns the template, including the JSON data for the chart
+    return render_template('chart_page.html', title = 'Books owned per user', chart_JSON = chart_JSON)
